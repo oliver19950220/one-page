@@ -2,3 +2,5 @@
 *.feishu.xml
 tools/
 vercel.json
+
+.tmp_pdf_tools/
