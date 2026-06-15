@@ -14,6 +14,71 @@ if (shouldResetScrollOnReload) {
   });
 }
 
+const initGlobalResizeHardReload = () => {
+  const reloadParam = "resizeReflow";
+  const reloadAtKey = "globalResizeHardReloadAt";
+  const currentUrl = new URL(window.location.href);
+  let stableViewport = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  };
+  let resizeTimer = 0;
+
+  if (currentUrl.searchParams.has(reloadParam)) {
+    currentUrl.searchParams.delete(reloadParam);
+    window.history.replaceState(null, "", currentUrl.toString());
+    window.scrollTo(0, 0);
+    window.addEventListener("load", () => {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => window.scrollTo(0, 0));
+      });
+    });
+  }
+
+  const shouldHardReload = () => {
+    const widthDelta = Math.abs(window.innerWidth - stableViewport.width);
+    const heightDelta = Math.abs(window.innerHeight - stableViewport.height);
+    const touchesDesktopLayout = Math.max(window.innerWidth, stableViewport.width) >= 821;
+
+    return touchesDesktopLayout && (widthDelta >= 16 || heightDelta >= 48);
+  };
+
+  const hardReload = () => {
+    if (!shouldHardReload()) {
+      stableViewport = {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      };
+      return;
+    }
+
+    const now = Date.now();
+    const lastReload = Number(sessionStorage.getItem(reloadAtKey) || 0);
+    const cooldownRemaining = 1200 - (now - lastReload);
+
+    if (cooldownRemaining > 0) {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(hardReload, cooldownRemaining + 80);
+      return;
+    }
+
+    sessionStorage.setItem(reloadAtKey, String(now));
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set(reloadParam, String(now));
+    window.location.replace(nextUrl.toString());
+  };
+
+  const scheduleHardReload = () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(hardReload, 900);
+  };
+
+  window.addEventListener("resize", scheduleHardReload, { passive: true });
+  window.addEventListener("orientationchange", scheduleHardReload, { passive: true });
+};
+
+initGlobalResizeHardReload();
+
 const translations = {
   zh: {
     navWork: "项目",
@@ -875,7 +940,6 @@ if (horizontalWork && workTrack) {
     width: window.innerWidth,
     height: window.innerHeight,
   };
-  const resizeReloadKey = "workResizeFullReload";
 
   const observeWorkCards = () => {
     workCards.forEach((card) => observer.observe(card));
@@ -1292,18 +1356,8 @@ if (horizontalWork && workTrack) {
   };
 
   const performResizeReload = () => {
-    const now = Date.now();
-    const lastReload = Number(sessionStorage.getItem(`${resizeReloadKey}At`) || 0);
-
-    if (now - lastReload < 1800 || !shouldReloadAfterResize()) {
-      rebuildAfterResize();
-      return false;
-    }
-
-    sessionStorage.setItem(`${resizeReloadKey}At`, String(now));
-    sessionStorage.setItem(resizeReloadKey, String(now));
-    window.location.reload();
-    return true;
+    rebuildAfterResize();
+    return false;
   };
 
   const finishWorkResize = () => {
@@ -1315,8 +1369,6 @@ if (horizontalWork && workTrack) {
   };
 
   setupWorkMode();
-
-  sessionStorage.removeItem(resizeReloadKey);
 
   const scheduleWorkModeRefresh = () => {
     horizontalWork.classList.add("is-resizing-work");
