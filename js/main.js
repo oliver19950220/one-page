@@ -21,7 +21,7 @@ const translations = {
     navMethod: "价值观",
     navContact: "联系",
     heroEyebrow: "AI PRODUCT MANAGER / PRODUCT TO COMMERCIALIZATION",
-    heroTitle: "把 AI<br>做成产品<br>跑通商业化",
+    heroTitle: "把 AI <span class=\"hero-title-join\">做成产品</span><br>跑通商业化",
     heroSubtitle: "高级 AI 产品经理。带过产品团队，做过商业化验证，也创业做过 0-1。",
     heroTagOne: "产品 Owner",
     heroTagTwo: "商业化背景",
@@ -30,10 +30,10 @@ const translations = {
     ctaCall: "拨打电话",
     ctaWechat: "添加微信",
     ctaResume: "查看简历",
-    metricUsersValue: "Agent 从 0-1 上线，拿下 PH 榜首",
-    metricLtvValue: "跑通付费路径，LTV 提升 206%",
-    metricAdoptionValue: "重构 AI 生成效果，采纳率提升 40%",
-    metricCostValue: "上线工作流 MVP，交付成本降低 30%",
+    metricUsersValue: "PH 榜首 / Agent 0-1",
+    metricLtvValue: "LTV +206%",
+    metricAdoptionValue: "采纳率 +40%",
+    metricCostValue: "交付成本 -30%",
     metricUsers: "代表成果 01",
     metricLtv: "代表成果 02",
     metricAdoption: "代表成果 03",
@@ -139,7 +139,7 @@ const translations = {
     navMethod: "Belief",
     navContact: "Contact",
     heroEyebrow: "AI PRODUCT MANAGER / PRODUCT TO COMMERCIALIZATION",
-    heroTitle: "Build<br>AI Products<br>That Monetize",
+    heroTitle: "Build AI Products<br>That Monetize",
     heroSubtitle: "Senior AI Product Manager with team ownership, commercialization validation, and 0-1 startup experience.",
     heroTagOne: "Product Owner",
     heroTagTwo: "Commercialization",
@@ -148,10 +148,10 @@ const translations = {
     ctaCall: "Call Me",
     ctaWechat: "WeChat",
     ctaResume: "View Resume",
-    metricUsersValue: "Launched 0-1 Agent, reached PH #1",
-    metricLtvValue: "Validated paid path, lifted LTV 206%",
-    metricAdoptionValue: "Rebuilt AI generation, lifted adoption 40%",
-    metricCostValue: "Launched workflow MVP, cut delivery cost 30%",
+    metricUsersValue: "PH #1 / Agent 0-1",
+    metricLtvValue: "LTV +206%",
+    metricAdoptionValue: "Adoption +40%",
+    metricCostValue: "Delivery Cost -30%",
     metricUsers: "Selected Result 01",
     metricLtv: "Selected Result 02",
     metricAdoption: "Selected Result 03",
@@ -372,6 +372,441 @@ const initMobileResultRail = () => {
 
 initMobileResultRail();
 
+const initHeroSignalField = () => {
+  const canvas = document.querySelector("[data-hero-signal]");
+  const heroCard = canvas ? canvas.closest(".hero-card") : null;
+
+  if (!canvas || !heroCard || !canvas.getContext) {
+    return;
+  }
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const context = canvas.getContext("2d");
+  const pointer = { x: 0.62, y: 0.38, active: false };
+  const nodes = [];
+  const pulses = [];
+  let width = 0;
+  let height = 0;
+  let dpr = 1;
+  let animationFrame = 0;
+  let lastPulseTime = 0;
+  let proofTopRatio = 0.72;
+
+  const palette = {
+    coral: "240, 117, 108",
+    teal: "75, 161, 167",
+    white: "255, 255, 255"
+  };
+
+  const randomBetween = (min, max) => min + Math.random() * (max - min);
+
+  const resize = () => {
+    const rect = heroCard.getBoundingClientRect();
+    const proofStrip = heroCard.querySelector(".proof-strip");
+    const proofRect = proofStrip ? proofStrip.getBoundingClientRect() : null;
+
+    width = Math.max(1, rect.width);
+    height = Math.max(1, rect.height);
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    proofTopRatio = proofRect ? Math.max(0.58, Math.min(0.82, (proofRect.top - rect.top - 28) / height)) : 0.72;
+
+    const nodeCount = width < 760 ? 22 : 38;
+    nodes.length = 0;
+
+    for (let index = 0; index < nodeCount; index += 1) {
+      const lane = index % 4;
+      const xBias = lane === 0 ? [0.08, 0.36] : lane === 1 ? [0.42, 0.72] : [0.66, 0.96];
+      const yMax = width < 760 ? 0.78 : proofTopRatio;
+
+      nodes.push({
+        x: randomBetween(xBias[0], xBias[1]) * width,
+        y: randomBetween(0.08, yMax) * height,
+        baseX: 0,
+        baseY: 0,
+        vx: randomBetween(-0.22, 0.22),
+        vy: randomBetween(-0.18, 0.18),
+        radius: randomBetween(1.4, width < 760 ? 2.4 : 3.2),
+        phase: randomBetween(0, Math.PI * 2),
+        tone: Math.random() > 0.58 ? palette.coral : palette.teal
+      });
+    }
+
+    nodes.forEach((node) => {
+      node.baseX = node.x;
+      node.baseY = node.y;
+    });
+  };
+
+  const drawLine = (from, to, alpha, tone = palette.white) => {
+    context.beginPath();
+    context.moveTo(from.x, from.y);
+    context.lineTo(to.x, to.y);
+    context.strokeStyle = `rgba(${tone}, ${alpha})`;
+    context.lineWidth = 1;
+    context.stroke();
+  };
+
+  const drawScanGeometry = (time) => {
+    const scanX = ((time * 0.026) % (width + 240)) - 120;
+    const scanGradient = context.createLinearGradient(scanX - 80, 0, scanX + 120, height * proofTopRatio);
+
+    scanGradient.addColorStop(0, "rgba(255,255,255,0)");
+    scanGradient.addColorStop(0.42, "rgba(75,161,167,0.05)");
+    scanGradient.addColorStop(0.52, "rgba(255,255,255,0.12)");
+    scanGradient.addColorStop(1, "rgba(255,255,255,0)");
+
+    context.save();
+    context.beginPath();
+    context.rect(0, 0, width, height * proofTopRatio);
+    context.clip();
+    context.fillStyle = scanGradient;
+    context.beginPath();
+    context.moveTo(scanX, 0);
+    context.lineTo(scanX + 170, 0);
+    context.lineTo(scanX + 40, height * proofTopRatio);
+    context.lineTo(scanX - 130, height * proofTopRatio);
+    context.closePath();
+    context.fill();
+
+    context.strokeStyle = "rgba(75,161,167,0.08)";
+    context.lineWidth = 1;
+    for (let index = 0; index < 3; index += 1) {
+      const y = height * (0.18 + index * 0.18) + Math.sin(time * 0.001 + index) * 12;
+      context.beginPath();
+      context.moveTo(width * 0.38, y);
+      context.quadraticCurveTo(width * 0.62, y - 50, width * 0.96, y - 88);
+      context.stroke();
+    }
+    context.restore();
+  };
+
+  const drawPulse = (time) => {
+    if (time - lastPulseTime > 1650) {
+      lastPulseTime = time;
+      pulses.push({
+        x: randomBetween(0.46, 0.88) * width,
+        y: randomBetween(0.18, Math.min(proofTopRatio - 0.08, 0.62)) * height,
+        born: time,
+        tone: Math.random() > 0.5 ? palette.teal : palette.coral
+      });
+    }
+
+    for (let index = pulses.length - 1; index >= 0; index -= 1) {
+      const pulse = pulses[index];
+      const age = (time - pulse.born) / 1800;
+
+      if (age >= 1) {
+        pulses.splice(index, 1);
+        continue;
+      }
+
+      context.beginPath();
+      context.arc(pulse.x, pulse.y, 22 + age * 72, 0, Math.PI * 2);
+      context.strokeStyle = `rgba(${pulse.tone}, ${0.18 * (1 - age)})`;
+      context.lineWidth = 1;
+      context.stroke();
+    }
+  };
+
+  const render = (time = 0) => {
+    context.clearRect(0, 0, width, height);
+    drawScanGeometry(time);
+
+    nodes.forEach((node) => {
+      const driftX = Math.sin(time * 0.00055 + node.phase) * 10;
+      const driftY = Math.cos(time * 0.00048 + node.phase) * 7;
+      const pull = pointer.active ? 0.018 : 0.006;
+      const targetX = node.baseX + driftX + (pointer.x * width - node.baseX) * pull;
+      const targetY = node.baseY + driftY + (pointer.y * height - node.baseY) * pull;
+
+      node.x += (targetX - node.x) * 0.04;
+      node.y += (targetY - node.y) * 0.04;
+      node.y = Math.min(node.y, height * proofTopRatio - 18);
+    });
+
+    for (let i = 0; i < nodes.length; i += 1) {
+      for (let j = i + 1; j < nodes.length; j += 1) {
+        const first = nodes[i];
+        const second = nodes[j];
+        const dx = first.x - second.x;
+        const dy = first.y - second.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const maxDistance = width < 760 ? 132 : 178;
+
+        if (distance < maxDistance) {
+          const alpha = (1 - distance / maxDistance) * 0.13;
+          drawLine(first, second, alpha, first.tone);
+        }
+      }
+    }
+
+    nodes.forEach((node) => {
+      const glow = 0.26 + Math.sin(time * 0.002 + node.phase) * 0.12;
+      context.beginPath();
+      context.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+      context.fillStyle = `rgba(${node.tone}, ${glow})`;
+      context.fill();
+    });
+
+    drawPulse(time);
+    animationFrame = window.requestAnimationFrame(render);
+  };
+
+  const start = () => {
+    if (prefersReducedMotion.matches || animationFrame) {
+      return;
+    }
+
+    heroCard.classList.add("is-signal-active");
+    animationFrame = window.requestAnimationFrame(render);
+  };
+
+  const stop = () => {
+    if (animationFrame) {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = 0;
+    }
+    heroCard.classList.remove("is-signal-active");
+  };
+
+  heroCard.addEventListener("pointermove", (event) => {
+    const rect = heroCard.getBoundingClientRect();
+    pointer.x = (event.clientX - rect.left) / rect.width;
+    pointer.y = (event.clientY - rect.top) / rect.height;
+    pointer.active = true;
+    window.clearTimeout(pointer.timer);
+    pointer.timer = window.setTimeout(() => {
+      pointer.active = false;
+    }, 500);
+  });
+
+  resize();
+  start();
+  window.addEventListener("resize", resize);
+  prefersReducedMotion.addEventListener("change", () => {
+    resize();
+    if (prefersReducedMotion.matches) {
+      stop();
+      context.clearRect(0, 0, width, height);
+    } else {
+      start();
+    }
+  });
+};
+
+initHeroSignalField();
+
+const initSectionSignalFields = () => {
+  const canvases = Array.from(document.querySelectorAll("[data-section-signal]"));
+
+  if (!canvases.length) {
+    return;
+  }
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const sectionPalettes = {
+    capabilities: {
+      primary: [75, 161, 167],
+      secondary: [240, 117, 108],
+      line: [17, 17, 17]
+    },
+    work: {
+      primary: [75, 161, 167],
+      secondary: [240, 117, 108],
+      line: [17, 17, 17]
+    },
+    belief: {
+      primary: [255, 255, 255],
+      secondary: [75, 161, 167],
+      line: [255, 255, 255]
+    },
+    contact: {
+      primary: [255, 255, 255],
+      secondary: [240, 117, 108],
+      line: [255, 255, 255]
+    }
+  };
+
+  const createField = (canvas) => {
+    const section = canvas.closest("[data-signal-section]");
+    const context = canvas.getContext ? canvas.getContext("2d") : null;
+
+    if (!section || !context) {
+      return null;
+    }
+
+    const type = section.dataset.signalSection || "capabilities";
+    const palette = sectionPalettes[type] || sectionPalettes.capabilities;
+    const points = [];
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let frame = 0;
+    let visible = false;
+
+    const randomBetween = (min, max) => min + Math.random() * (max - min);
+    const color = (value, alpha) => `rgba(${value[0]}, ${value[1]}, ${value[2]}, ${alpha})`;
+
+    const resize = () => {
+      const rect = section.getBoundingClientRect();
+      width = Math.max(1, rect.width);
+      height = Math.max(1, rect.height);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const density = type === "work" ? 18 : type === "contact" ? 16 : 22;
+      const count = Math.max(10, Math.min(34, Math.round(width / 90) + density));
+      points.length = 0;
+
+      for (let index = 0; index < count; index += 1) {
+        const sideBias = type === "work" ? randomBetween(0.04, 0.96) : randomBetween(0.08, 0.92);
+        points.push({
+          x: sideBias * width,
+          y: randomBetween(0.08, 0.92) * height,
+          phase: randomBetween(0, Math.PI * 2),
+          radius: randomBetween(1, type === "contact" || type === "belief" ? 2.2 : 2.8),
+          tone: Math.random() > 0.58 ? palette.secondary : palette.primary
+        });
+      }
+    };
+
+    const drawCurve = (from, to, time, alpha) => {
+      const midX = (from.x + to.x) / 2 + Math.sin(time * 0.00034 + from.phase) * 34;
+      const midY = (from.y + to.y) / 2 + Math.cos(time * 0.0003 + to.phase) * 22;
+
+      context.beginPath();
+      context.moveTo(from.x, from.y);
+      context.quadraticCurveTo(midX, midY, to.x, to.y);
+      context.strokeStyle = color(from.tone, alpha);
+      context.lineWidth = 1;
+      context.stroke();
+    };
+
+    const render = (time = 0) => {
+      context.clearRect(0, 0, width, height);
+
+      const sweepX = ((time * 0.018) % (width + 260)) - 130;
+      const gradient = context.createLinearGradient(sweepX - 90, 0, sweepX + 180, height);
+      gradient.addColorStop(0, "rgba(255,255,255,0)");
+      gradient.addColorStop(0.5, color(palette.primary, type === "belief" || type === "contact" ? 0.065 : 0.045));
+      gradient.addColorStop(1, "rgba(255,255,255,0)");
+
+      context.fillStyle = gradient;
+      context.beginPath();
+      context.moveTo(sweepX, 0);
+      context.lineTo(sweepX + 160, 0);
+      context.lineTo(sweepX + 40, height);
+      context.lineTo(sweepX - 120, height);
+      context.closePath();
+      context.fill();
+
+      points.forEach((point, index) => {
+        point.drawX = point.x + Math.sin(time * 0.00045 + point.phase) * 10;
+        point.drawY = point.y + Math.cos(time * 0.00038 + point.phase) * 8;
+
+        for (let nextIndex = index + 1; nextIndex < points.length; nextIndex += 1) {
+          const next = points[nextIndex];
+          const dx = point.drawX - next.x;
+          const dy = point.drawY - next.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const maxDistance = width < 680 ? 112 : 160;
+
+          if (distance < maxDistance) {
+            drawCurve(
+              { x: point.drawX, y: point.drawY, tone: point.tone, phase: point.phase },
+              { x: next.x, y: next.y, phase: next.phase },
+              time,
+              (1 - distance / maxDistance) * (type === "belief" || type === "contact" ? 0.1 : 0.08)
+            );
+          }
+        }
+      });
+
+      points.forEach((point) => {
+        const pulse = 0.22 + Math.sin(time * 0.002 + point.phase) * 0.12;
+        context.beginPath();
+        context.arc(point.drawX, point.drawY, point.radius, 0, Math.PI * 2);
+        context.fillStyle = color(point.tone, pulse);
+        context.fill();
+      });
+
+      if (visible && !prefersReducedMotion.matches) {
+        frame = window.requestAnimationFrame(render);
+      }
+    };
+
+    const start = () => {
+      visible = true;
+      if (!frame && !prefersReducedMotion.matches) {
+        frame = window.requestAnimationFrame(render);
+      } else if (prefersReducedMotion.matches) {
+        render(0);
+      }
+    };
+
+    const stop = () => {
+      visible = false;
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+        frame = 0;
+      }
+    };
+
+    resize();
+    render(0);
+
+    return { section, resize, start, stop };
+  };
+
+  const fields = canvases.map(createField).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const field = fields.find((item) => item.section === entry.target);
+
+      if (!field) {
+        return;
+      }
+
+      if (entry.isIntersecting) {
+        field.start();
+      } else {
+        field.stop();
+      }
+    });
+  }, {
+    threshold: 0.02,
+    rootMargin: "18% 0px 18% 0px"
+  });
+
+  fields.forEach((field) => observer.observe(field.section));
+
+  let resizeTimer = 0;
+  window.addEventListener("resize", () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => {
+      fields.forEach((field) => field.resize());
+    }, 120);
+  });
+
+  prefersReducedMotion.addEventListener("change", () => {
+    fields.forEach((field) => {
+      field.resize();
+      field.start();
+    });
+  });
+};
+
+initSectionSignalFields();
+
 const horizontalWork = document.querySelector("[data-horizontal-work]");
 const workTrack = document.querySelector("[data-work-track]");
 
@@ -388,14 +823,13 @@ if (horizontalWork && workTrack) {
 
   workCards.forEach((card) => observer.observe(card));
 
-  const useDeck = window.matchMedia("(min-width: 1181px)");
+  const useDeck = window.matchMedia("(min-width: 821px)");
   const formatDeckIndex = (index) => String(index + 1).padStart(2, "0");
   const deckLabels = ["Wegic / AI Website Builder", "Authing / IDaaS", "Baidu AI Cloud / Marketing AI"];
 
   const updateDeckHud = (progress = 0) => {
-    const raw = progress * workCards.length;
-    const currentIndex = Math.min(workCards.length - 1, Math.floor(raw));
-    const localProgress = Math.min(Math.max(raw - currentIndex, 0), 1);
+    const maxIndex = Math.max(workCards.length - 1, 0);
+    const currentIndex = Math.min(maxIndex, Math.max(0, Math.round(progress * maxIndex)));
 
     if (deckHudCurrent) {
       deckHudCurrent.textContent = formatDeckIndex(currentIndex);
@@ -406,7 +840,7 @@ if (horizontalWork && workTrack) {
     }
 
     if (deckHudProgress) {
-      deckHudProgress.style.width = `${((currentIndex + localProgress) / workCards.length) * 100}%`;
+      deckHudProgress.style.width = `${((currentIndex + 1) / workCards.length) * 100}%`;
     }
   };
 
@@ -437,6 +871,11 @@ if (horizontalWork && workTrack) {
   let deckResetTrigger = null;
   let mobileCleanup = null;
   let workResizeTimer = null;
+  let stableViewport = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  };
+  const resizeReloadKey = "workResizeFullReload";
 
   const observeWorkCards = () => {
     workCards.forEach((card) => observer.observe(card));
@@ -636,6 +1075,7 @@ if (horizontalWork && workTrack) {
 
   const setupDesktopDeck = () => {
     window.gsap.registerPlugin(window.ScrollTrigger);
+
     horizontalWork.classList.remove("is-static-deck", "is-mobile-stack", "is-mobile-pinned", "is-mobile-released");
     observeWorkCards();
     setupFallbackDeck({ clearActive: true });
@@ -694,7 +1134,7 @@ if (horizontalWork && workTrack) {
         })
         .to(previousCard, {
           x: -180,
-          y: -window.innerHeight * 0.18,
+          y: () => -window.innerHeight * 0.18,
           z: -180,
           rotation: -4,
           rotationX: 8,
@@ -756,8 +1196,32 @@ if (horizontalWork && workTrack) {
     return "tablet-stack";
   };
 
+  const getDesktopDeckProgress = () => {
+    if (deckTimeline && deckTimeline.scrollTrigger) {
+      return deckTimeline.scrollTrigger.progress || 0;
+    }
+
+    const rect = horizontalWork.getBoundingClientRect();
+    const scrollableDistance = Math.max(horizontalWork.offsetHeight - window.innerHeight, 1);
+    const sectionTop = window.scrollY + rect.top;
+    return Math.min(Math.max((window.scrollY - sectionTop) / scrollableDistance, 0), 1);
+  };
+
+  const restoreDesktopDeckProgress = (progress) => {
+    if (!deckTimeline || !deckTimeline.scrollTrigger) {
+      return;
+    }
+
+    const trigger = deckTimeline.scrollTrigger;
+    const targetScroll = trigger.start + (trigger.end - trigger.start) * progress;
+    window.scrollTo(0, targetScroll);
+    trigger.update();
+    deckTimeline.progress(progress);
+    updateDeckHud(progress);
+  };
+
   const setupWorkMode = (options = {}) => {
-    const { force = false } = options;
+    const { force = false, preserveProgress = false } = options;
     const nextMode = getWorkMode();
 
     if (!force && nextMode === activeWorkMode) {
@@ -768,6 +1232,9 @@ if (horizontalWork && workTrack) {
     }
 
     const wasWorkSectionVisible = activeWorkMode && isWorkSectionVisible();
+    const shouldRestoreDeckProgress = preserveProgress && wasWorkSectionVisible && activeWorkMode === "desktop" && nextMode === "desktop";
+    const savedDeckProgress = shouldRestoreDeckProgress ? getDesktopDeckProgress() : 0;
+
     resetWorkModeState();
 
     activeWorkMode = nextMode;
@@ -781,30 +1248,101 @@ if (horizontalWork && workTrack) {
     if (wasWorkSectionVisible && window.ScrollTrigger) {
       window.requestAnimationFrame(() => {
         window.ScrollTrigger.refresh();
+
+        if (shouldRestoreDeckProgress) {
+          window.requestAnimationFrame(() => {
+            restoreDesktopDeckProgress(savedDeckProgress);
+          });
+        }
       });
     }
   };
 
+  const shouldReloadAfterResize = () => {
+    const widthDelta = Math.abs(window.innerWidth - stableViewport.width);
+    const heightDelta = Math.abs(window.innerHeight - stableViewport.height);
+    const modeMayChange = getWorkMode() !== activeWorkMode;
+
+    return modeMayChange || widthDelta >= 2 || heightDelta >= 2;
+  };
+
+  const rebuildAfterResize = () => {
+    const shouldRebuild = shouldReloadAfterResize();
+    const shouldPreserveProgress = isWorkSectionVisible();
+    stableViewport = {
+      width: window.innerWidth,
+      height: window.innerHeight,
+    };
+
+    if (!shouldRebuild) {
+      if (window.ScrollTrigger) {
+        window.ScrollTrigger.refresh();
+      }
+      return;
+    }
+
+    if (window.ScrollTrigger && window.ScrollTrigger.clearScrollMemory) {
+      window.ScrollTrigger.clearScrollMemory();
+    }
+
+    setupWorkMode({
+      force: true,
+      preserveProgress: shouldPreserveProgress,
+    });
+  };
+
+  const performResizeReload = () => {
+    const now = Date.now();
+    const lastReload = Number(sessionStorage.getItem(`${resizeReloadKey}At`) || 0);
+
+    if (now - lastReload < 1800 || !shouldReloadAfterResize()) {
+      rebuildAfterResize();
+      return false;
+    }
+
+    sessionStorage.setItem(`${resizeReloadKey}At`, String(now));
+    sessionStorage.setItem(resizeReloadKey, String(now));
+    window.location.reload();
+    return true;
+  };
+
+  const finishWorkResize = () => {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        horizontalWork.classList.remove("is-resizing-work", "is-reflowing-work");
+      });
+    });
+  };
+
   setupWorkMode();
+
+  sessionStorage.removeItem(resizeReloadKey);
 
   const scheduleWorkModeRefresh = () => {
     horizontalWork.classList.add("is-resizing-work");
     window.clearTimeout(workResizeTimer);
     workResizeTimer = window.setTimeout(() => {
-      setupWorkMode({ force: true });
-      window.requestAnimationFrame(() => {
-        horizontalWork.classList.remove("is-resizing-work");
-      });
-    }, 180);
+      if (!performResizeReload()) {
+        finishWorkResize();
+      }
+    }, 420);
   };
 
   if (useDeck.addEventListener) {
-    useDeck.addEventListener("change", setupWorkMode);
+    useDeck.addEventListener("change", scheduleWorkModeRefresh);
   } else if (useDeck.addListener) {
-    useDeck.addListener(setupWorkMode);
+    useDeck.addListener(scheduleWorkModeRefresh);
   }
 
   window.addEventListener("resize", scheduleWorkModeRefresh);
+  window.addEventListener("orientationchange", scheduleWorkModeRefresh);
+  window.addEventListener("pageshow", () => {
+    setupWorkMode({ force: true });
+  });
+
+  if (window.visualViewport && useDeck.matches) {
+    window.visualViewport.addEventListener("resize", scheduleWorkModeRefresh);
+  }
 }
 
 const beliefSection = document.querySelector("[data-belief-section]");
@@ -852,6 +1390,8 @@ if (beliefSection && beliefGrid && beliefTiles.length && window.matchMedia("(min
   const playNativeBeliefFormation = () => {
     beliefAnimations.forEach((animation) => animation.cancel());
     beliefAnimations = [];
+    beliefGrid.classList.add("is-forming-belief");
+    let finishedAnimations = 0;
 
     beliefTiles.forEach((tile, index) => {
       const start = getBeliefStartState(tile);
@@ -892,6 +1432,10 @@ if (beliefSection && beliefGrid && beliefTiles.length && window.matchMedia("(min
         tile.style.opacity = "";
         tile.style.transform = "";
         tile.style.filter = "";
+        finishedAnimations += 1;
+        if (finishedAnimations >= beliefTiles.length) {
+          beliefGrid.classList.remove("is-forming-belief");
+        }
       }).catch(() => {});
     });
   };
@@ -904,6 +1448,7 @@ if (beliefSection && beliefGrid && beliefTiles.length && window.matchMedia("(min
       tile.style.transform = "";
       tile.style.filter = "";
     });
+    beliefGrid.classList.remove("is-forming-belief");
   };
 
   if ("IntersectionObserver" in window) {
