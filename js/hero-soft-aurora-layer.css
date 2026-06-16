@@ -1,0 +1,329 @@
+/* Hero SoftAurora v1.
+   Rollback: remove js/hero-soft-aurora.css and js/hero-soft-aurora.js from index.html. */
+.hero-card-soft-aurora .hero-signal-canvas {
+  opacity: 0;
+}
+
+.hero-card-soft-aurora::after {
+  opacity: 0 !important;
+}
+
+.hero-card-soft-aurora .proof-strip::after {
+  display: none;
+  animation: none;
+}
+
+.hero-soft-aurora-fallback,
+.hero-soft-aurora-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.hero-soft-aurora-fallback {
+  opacity: 0.76;
+  background:
+    radial-gradient(ellipse at 18% 26%, rgba(240, 117, 108, 0.28), transparent 32rem),
+    radial-gradient(ellipse at 78% 54%, rgba(75, 161, 167, 0.36), transparent 36rem),
+    linear-gradient(105deg, transparent 0 34%, rgba(240, 117, 108, 0.12) 48%, rgba(75, 161, 167, 0.18) 72%, transparent 100%);
+  filter: saturate(1.08);
+}
+
+.hero-soft-aurora-layer {
+  opacity: 0.72;
+}
+
+.hero-soft-aurora-layer canvas,
+.hero-soft-aurora-layer .soft-aurora-container {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.portrait-orbit.is-tilted-card-ready {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  transform-style: preserve-3d;
+}
+
+.portrait-orbit.is-tilted-card-ready > img {
+  opacity: 0;
+}
+
+.hero-tilted-card-root {
+  position: absolute;
+  inset: -34px;
+  border-radius: 50%;
+  overflow: visible;
+  pointer-events: auto;
+}
+
+.hero-tilted-card-root .tilted-card-figure,
+.hero-tilted-card-root .tilted-card-inner {
+  width: calc(100% - 68px) !important;
+  height: calc(100% - 68px) !important;
+  border-radius: 50%;
+}
+
+.hero-tilted-card-root .tilted-card-figure {
+  perspective: 900px;
+}
+
+.hero-tilted-card-root .tilted-card-inner {
+  box-sizing: border-box;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  box-shadow:
+    0 34px 78px rgba(0, 0, 0, 0.34),
+    0 12px 30px rgba(75, 161, 167, 0.16);
+}
+
+.hero-tilted-card-root .tilted-card-inner::before,
+.hero-tilted-card-root .tilted-card-inner::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero-tilted-card-root .tilted-card-inner::before {
+  inset: 0;
+  z-index: 2;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.24),
+    inset 10px 14px 22px rgba(255, 255, 255, 0.2),
+    inset -16px -22px 34px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+.hero-tilted-card-root .tilted-card-inner::after {
+  inset: 0;
+  z-index: 3;
+  background:
+    radial-gradient(circle at 28% 18%, rgba(255, 255, 255, 0.26), transparent 24%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.13), transparent 34%, rgba(0, 0, 0, 0.12) 100%);
+  opacity: 0.62;
+}
+
+.hero-tilted-card-root .tilted-card-img {
+  top: 0 !important;
+  left: 0 !important;
+  z-index: 1;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50%;
+  filter: saturate(1.03) contrast(1.03);
+  box-shadow:
+    0 22px 58px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.hero-tilted-card-root .tilted-card-mobile-alert,
+.hero-tilted-card-root .tilted-card-caption {
+  display: none !important;
+}
+
+.is-gradient-phrase-source {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+}
+
+.gradient-phrase-root {
+  position: relative;
+  z-index: 1;
+}
+
+.gradient-phrase-root .animated-gradient-text {
+  display: inline-flex;
+  max-width: 100%;
+  margin: 0;
+  align-items: baseline;
+  justify-content: flex-start;
+  border-radius: 0;
+  font: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  backdrop-filter: none;
+  cursor: default;
+}
+
+.gradient-phrase-root .animated-gradient-text .text-content {
+  display: inline;
+}
+
+.gradient-phrase-root.is-belief-title {
+  max-width: 1180px;
+  color: var(--black);
+  font-size: clamp(40px, 4.5vw, 72px);
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 0.98;
+}
+
+.gradient-phrase-root.is-belief-hero-title {
+  max-width: 820px;
+  margin: auto 0 16px;
+  color: var(--white);
+  font-size: clamp(30px, 3vw, 46px);
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1.02;
+}
+
+.gradient-phrase-root.is-belief-card-title {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.86);
+  font-size: clamp(22px, 1.9vw, 30px);
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1.02;
+}
+
+.gradient-phrase-root .gradient-phrase {
+  display: inline;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
+
+.gradient-phrase-root .gradient-phrase-accent .text-content {
+  -webkit-text-fill-color: transparent;
+  filter: saturate(1.08);
+}
+
+.belief-board.is-border-glow-ready {
+  overflow: visible;
+}
+
+.belief-border-glow-card.border-glow-card {
+  min-height: 180px;
+  border-color: rgba(255, 255, 255, 0.12);
+  border-radius: 26px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.belief-border-glow-card.is-hero {
+  grid-column: 1 / span 6;
+  grid-row: 1 / span 2;
+  border-radius: 28px;
+}
+
+.belief-border-glow-card.is-wide {
+  grid-column: 7 / span 3;
+  grid-row: 1;
+}
+
+.belief-border-glow-card.is-accent {
+  grid-column: 10 / span 3;
+  grid-row: 1;
+}
+
+.belief-border-glow-card.is-ship {
+  grid-column: 7 / span 3;
+  grid-row: 2;
+}
+
+.belief-border-glow-card.is-dark {
+  grid-column: 10 / span 3;
+  grid-row: 2;
+}
+
+.belief-border-glow-card.is-education {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
+.belief-border-glow-card .border-glow-inner {
+  min-height: 100%;
+  overflow: visible;
+  border-radius: inherit;
+}
+
+.belief-border-glow-card .belief-tile {
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+}
+
+.belief-border-glow-card.is-education .belief-tile {
+  min-height: 180px;
+}
+
+.belief-border-glow-card:hover .belief-tile {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 820px) {
+  .hero-visual {
+    justify-items: center;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .portrait-orbit {
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .hero-soft-aurora-fallback {
+    opacity: 0.56;
+  }
+
+  .hero-soft-aurora-layer {
+    opacity: 0.5;
+  }
+
+  .gradient-phrase-root.is-belief-title {
+    max-width: 9em;
+    font-size: clamp(30px, 8.6vw, 38px);
+    line-height: 1.02;
+  }
+
+  .gradient-phrase-root.is-belief-hero-title {
+    max-width: 8.6em;
+    margin: clamp(32px, 10vw, 48px) 0 0;
+    font-size: clamp(25px, 7vw, 31px);
+    line-height: 1.02;
+  }
+
+  .gradient-phrase-root.is-belief-card-title {
+    color: rgba(255, 255, 255, 0.94);
+    font-size: clamp(18px, 5.2vw, 22px);
+    line-height: 1.06;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-soft-aurora-layer {
+    display: none;
+  }
+
+  .is-gradient-phrase-source {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+  }
+
+  .gradient-phrase-root {
+    display: none !important;
+  }
+}

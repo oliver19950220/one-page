@@ -4,3 +4,4 @@ tools/
 vercel.json
 
 .tmp_pdf_tools/
+node_modules/
