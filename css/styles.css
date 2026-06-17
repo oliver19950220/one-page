@@ -5079,3 +5079,66 @@ html[lang="zh-CN"] .hero h1 {
     animation: none !important;
   }
 }
+
+/* 2026-06-18 layout fallback: keep the education row full-width across responsive widths. */
+@media (min-width: 821px) {
+  .belief-board[data-grid-fourth-v2] {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .belief-board[data-grid-fourth-v2] > .belief-tile-education,
+  .belief-board[data-grid-fourth-v2] > .belief-border-glow-card.is-education {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    justify-self: stretch !important;
+  }
+
+  .belief-board[data-grid-fourth-v2] > .belief-border-glow-card.is-education {
+    display: grid;
+  }
+
+  .belief-border-glow-card.is-education .border-glow-inner,
+  .belief-border-glow-card.is-education .belief-tile,
+  .belief-border-glow-card.is-education .belief-tile-education {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+
+  .belief-board[data-grid-fourth-v2] > .belief-tile-education,
+  .belief-border-glow-card.is-education .belief-tile-education {
+    grid-template-columns: minmax(128px, 0.42fr) repeat(2, minmax(0, 1fr));
+    gap: clamp(18px, 3vw, 44px);
+  }
+}
+
+@media (min-width: 821px) and (max-width: 1120px) {
+  .belief-board[data-grid-fourth-v2] > .belief-tile-education,
+  .belief-border-glow-card.is-education .belief-tile-education {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 24px;
+  }
+
+  .belief-board[data-grid-fourth-v2] > .belief-tile-education > span,
+  .belief-border-glow-card.is-education .belief-tile-education > span {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 820px) {
+  .belief-board[data-grid-fourth-v2] > .belief-tile-education,
+  .belief-border-glow-card.is-education .belief-tile-education {
+    width: 100% !important;
+    max-width: none !important;
+    grid-template-columns: 1fr;
+  }
+
+  .belief-tile-education p {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
